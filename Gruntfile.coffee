@@ -1,44 +1,58 @@
 module.exports = (grunt)->
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json'),
+
     coffee:
       compile:
         files:
-          'build/uri.js': 'source/uri.coffee',
+          'build/<%= pkg.name %>.js': 'source/<%= pkg.name %>.coffee',
       test:
         files:
-          'test/unit/uri_spec.js': 'source/uri_spec.coffee'
+          'test/unit/<%= pkg.name %>_spec.js': 'source/<%= pkg.name %>_spec.coffee'
+
     coffeelint:
-      app: ['source/uri.coffee']
-      tests:
+      app: ['source/<%= pkg.name %>.coffee']
+      test:
         files:
           src:
-            ['source/uri_spec.coffee']
+            ['source/<%= pkg.name %>_spec.coffee']
       options:
         'no_trailing_whitespace':
           level: 'error'
+
     watch:
       scripts:
-        files: ['source/uri.coffee'],
+        files: ['source/<%= pkg.name %>.coffee'],
         tasks: ['default']
-      tests:
-        files: ['source/uri_spec.coffee']
+      test:
+        files: ['source/<%= pkg.name %>_spec.coffee']
         tasks: ['test']
+
     exec:
       test:
         command: 'mocha-phantomjs -R dot test/index.html'
+
     uglify:
+      options:
+        banner: '/*! <%= pkg.name %> <%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
       dist:
         files:
-          'build/uri.min.js': 'build/uri.js'
+          'build/<%= pkg.name %>.min.js': 'build/<%= pkg.name %>.js'
+
+    jsdoc:
+      dist:
+        src: ['build/*.js']
+        options:
+          destination: 'doc'
 
   grunt.loadNpmTasks('grunt-contrib-coffee')
   grunt.loadNpmTasks('grunt-coffeelint')
   grunt.loadNpmTasks('grunt-contrib-watch')
   grunt.loadNpmTasks('grunt-exec')
   grunt.loadNpmTasks('grunt-contrib-uglify')
+  grunt.loadNpmTasks('grunt-jsdoc')
 
-  grunt.registerTask('test', ['coffeelint:tests', 'coffee:test', 'exec:test'])
+  grunt.registerTask('test', ['coffeelint:test', 'coffee:test', 'exec:test'])
   grunt.registerTask('default', ['coffeelint:app', 'coffee:compile'])
-  grunt.registerTask('dist', ['test', 'default', 'uglify'])
+  grunt.registerTask('dist', ['test', 'default', 'uglify', 'jsdoc'])
 
