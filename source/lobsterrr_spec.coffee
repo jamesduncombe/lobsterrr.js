@@ -1,7 +1,13 @@
 "use strict"
 
 mockForm = ->
-  document.createElement 'form'
+  form = document.createElement 'form'
+  form.innerHTML = """
+    <input name="something">
+    <input type="submit">
+  """
+
+  form
 
 mockArgs = ->
   {
@@ -9,6 +15,16 @@ mockArgs = ->
   }
 
 describe 'Lobsterrr', ->
+
+  beforeEach ->
+    @xhr = sinon.useFakeXMLHttpRequest()
+    requests = @requests = []
+
+    @xhr.onCreate = (xhr)->
+      requests.push(xhr)
+
+  afterEach ->
+    @xhr.restore()
 
   describe '@init', ->
     beforeEach ->
@@ -63,8 +79,22 @@ describe 'Lobsterrr', ->
       l = new Lobsterrr(f)
       l.form.should.eq f
 
-    # it 'creates a token', ->
-    #   f = mockForm()
-    #   l = new Lobsterrr(f)
-    #   f.firstChild.should.eq document.createElement('input')
-    #
+    it 'creates a token', ->
+      f = document.getElementById('test-form')
+      new Lobsterrr(f)
+
+      headers = {'content-type': 'application/json'}
+      body = '{"key": "key"}'
+
+      @requests[0].respond(200, headers, body)
+
+      f.firstChild.value.should.eq 'key'
+
+    it 'binds submit event'
+
+  describe 'form submission', ->
+    describe '#createMessage', ->
+      it 'fires callbacks'
+      it 'posts form fields to lte'
+
+

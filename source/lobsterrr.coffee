@@ -1,6 +1,3 @@
-window['Ajax'] = {}
-# TODO: ajax dependency
-
 do(window, Ajax)->
   "use strict"
 
@@ -12,7 +9,7 @@ do(window, Ajax)->
   ###
 
   instances = []
-  baseURL = 'api.lobsterrr.com'
+  baseURL = 'http://api.lobsterrr.com'
 
   ###*
    * Lobsterrr js object. Interacts with Lobsterrr api to submit your forms.
@@ -34,8 +31,35 @@ do(window, Ajax)->
 
       @form = form
 
-      bindSubmitEvent(@form)
+      @form.addEventListener 'submit', @createMessage, true
+
       createToken(@)
+
+    createMessage: (e)->
+      e.preventDefault()
+
+      that = @
+
+      Ajax.request
+        method: 'POST',
+        url: "#{baseURL}/messages",
+        data: getParams(that.form),
+        onSuccess: (xhr)->
+          that.messageSuccess(that.form)
+        onError: (xhr)->
+          that.messageError()
+        onStart: ->
+          that.messageStart(that.form)
+        onFinish: ->
+          that.messageDone(that.form)
+
+    getParams = (form)->
+      params = {}
+
+      for element in form.elements
+        params[element.name] = element.value
+
+      params
 
     createToken = (that)->
       Ajax.request
@@ -61,13 +85,11 @@ do(window, Ajax)->
     bindSubmitEvent = (form)->
       form.addEventListener 'submit', createMessage, true
 
-    createMessage = ->
-
     tokenError = ->
       throw new Error 'Lobsterrr failed to aquire token.'
 
     messageError = ->
-      throw new Error 'Lobsterrr failed to dend message.'
+      throw new Error 'Lobsterrr failed to send message.'
 
     messageSuccess = (form)->
 

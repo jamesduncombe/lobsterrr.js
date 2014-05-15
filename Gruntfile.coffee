@@ -5,7 +5,9 @@ module.exports = (grunt)->
     coffee:
       compile:
         files:
-          'build/<%= pkg.name %>.js': 'source/<%= pkg.name %>.coffee',
+          'tmp/<%= pkg.name %>.js': 'source/<%= pkg.name %>.coffee',
+        options:
+          bare: true
       test:
         files:
           'test/unit/<%= pkg.name %>_spec.js': 'source/<%= pkg.name %>_spec.coffee'
@@ -45,14 +47,22 @@ module.exports = (grunt)->
         options:
           destination: 'doc'
 
+    concat:
+      options:
+        seperator: ';'
+      dist:
+        src: ['source/ajax.min.js', 'tmp/<%= pkg.name %>.js']
+        dest: 'build/<%= pkg.name %>.js'
+
   grunt.loadNpmTasks('grunt-contrib-coffee')
   grunt.loadNpmTasks('grunt-coffeelint')
   grunt.loadNpmTasks('grunt-contrib-watch')
   grunt.loadNpmTasks('grunt-exec')
   grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.loadNpmTasks('grunt-jsdoc')
+  grunt.loadNpmTasks('grunt-contrib-concat')
 
   grunt.registerTask('test', ['coffeelint:test', 'coffee:test', 'exec:test'])
-  grunt.registerTask('default', ['coffeelint:app', 'coffee:compile'])
-  grunt.registerTask('dist', ['test', 'default', 'uglify', 'jsdoc'])
+  grunt.registerTask('default', ['coffeelint:app', 'coffee:compile', 'concat'])
+  grunt.registerTask('dist', ['default', 'test', 'uglify', 'jsdoc'])
 
