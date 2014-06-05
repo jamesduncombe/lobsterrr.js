@@ -97,4 +97,3 @@ describe 'Lobsterrr', ->
       it 'fires callbacks'
       it 'posts form fields to lte'
 
-
