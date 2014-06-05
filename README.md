@@ -2,6 +2,8 @@
 
 Javascript client for lobsterrr messaging service
 
+www.lobsterrr.com
+
 ## usage
 
 ```javascript
